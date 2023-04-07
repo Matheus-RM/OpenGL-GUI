@@ -8,6 +8,9 @@
 
 #include "Time/ScopedTimer.hpp"
 #include "CameraManager.hpp"
+#include "Factories/ShapeFactory.hpp"
+
+#include "Base/WidgetData.hpp"
 
 App::App()
 {
@@ -56,12 +59,13 @@ void App::init()
 	mWindow.start();
 	mWindow.updateViewport();
 	
-	mRenderer.start(mWindow.getSize());
-	mRenderer.setClearColor(glm::vec3(0.95f, 0.95f, 0.95f));
+	mInterface.start(mWindow.getSize());
+	mInterface.setClearColor(glm::vec3(0.95f, 0.95f, 0.95f));
 
-	mRenderer.createSquare({0, 0}, {100, 100}, 1, 0, Background::solid(0.10f, 0.15f, 0.80f));
-	mRenderer.createSquare({25, 25}, {100, 100}, 1, 25, Background::solid(0.80f, 0.15f, 0.10f));
-	mRenderer.createSquare({50, 50}, {100, 100}, 3, 50, Background::solid(0.10f, 0.80f, 0.15f));
+	using namespace Factory;
+	mInterface.createWidget("1", Shape::square({0, 0}, {100, 100}, 1, 0, Background::solid(0.10f, 0.15f, 0.80f)));
+	mInterface.createWidget("2", Shape::square({50, 50}, {100, 100}, 3, 50, Background::solid(0.10f, 0.80f, 0.15f)));
+	mInterface.createWidget("3", Shape::square({25, 25}, {200, 100}, 1, 25, Background::solid(0.80f, 0.15f, 0.10f)));
 
 	auto& cameraManager = CameraManager::getInstance();
 	cameraManager.setCamera2D({0, 0}, mWindow.getSize(), 1.0f);
@@ -87,12 +91,12 @@ void App::runFrame()
 
 	// OpenGL rendering
 	//mRenderer->draw(ew, mCameraManager.getProjectionViewMatrix());
-	//mWidgets->draw(ew);
+	//mWidgetDatas->draw(ew);
 
-	mRenderer.draw();
+	mInterface.draw();
 
 	auto mousePos = mInput.getMousePosition();
-	auto id = mRenderer.getShapeId(mousePos);
+	auto id = mInterface.getShapeId(mousePos);
 
 	mWindow.setTitle(std::string("Meu App - mouse: (") + std::to_string(mousePos.x) + ", " + 
 						std::to_string(mousePos.y) + ") - shape ID: " + std::to_string(id));

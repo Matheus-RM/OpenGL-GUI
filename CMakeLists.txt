@@ -49,6 +49,8 @@ add_executable(prog
                 src/Input.cpp
                 src/ShaderLoader.cpp
                 src/Renderer.cpp
+                src/Interface.cpp
+                src/Widget.cpp
                 src/Background.cpp
                 src/CameraManager.cpp
 
@@ -57,6 +59,7 @@ add_executable(prog
 
                 src/GLShader.cpp
                 src/Factories/GLFactory.cpp
+                src/Factories/ShapeFactory.cpp
 
                 src/Time/Clock.cpp
                 src/Time/ScopedTimer.cpp

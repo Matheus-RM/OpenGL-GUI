@@ -5,8 +5,9 @@
 #include <glm/ext/vector_int2.hpp>
 #include <glm/ext/vector_float2.hpp>
 #include <glm/ext/matrix_float4x4.hpp>
+#include <memory>
 
-struct Shape
+struct ShapeData
 {
 	GLuint vao;
 	GLuint vbo;
@@ -21,3 +22,5 @@ struct Shape
 
 	glm::mat4 modelMatrix;
 };
+
+using ShapePtr = std::unique_ptr<ShapeData>;

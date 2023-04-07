@@ -7,8 +7,6 @@
 #include "glm/ext/matrix_transform.hpp"
 #include "glm/gtc/type_ptr.hpp"
 
-#include <GL/gl.h>
-#include <stdexcept>
 
 Renderer::Renderer()
 {
@@ -122,7 +120,7 @@ void Renderer::setDrawBuffers() const
 }
 
 
-void Renderer::draw() const
+void Renderer::draw(const std::vector<ShapeData>& shapes, size_t validSize) const
 {
 	auto& cameraManager = CameraManager::getInstance();
 
@@ -133,9 +131,9 @@ void Renderer::draw() const
 	GL::Shader::activate(mShader);
 	GL::Shader::setUniform(mShader, "orthoViewMat", cameraManager.getOrthoViewMatrix());
 
-	for(auto& shape : mShapes)
+	for(size_t i = 0; i < validSize; i++)
 	{
-		drawShape(shape);
+		drawShape(shapes.at(i));
 	}
 
 	blitScreenBuffer();
@@ -149,7 +147,7 @@ void Renderer::clearBuffers() const
 	glClearBufferuiv(GL_COLOR, 1, glm::value_ptr(mIdClearColor));
 }
 
-void Renderer::drawShape(const Shape& shape) const
+void Renderer::drawShape(const ShapeData& shape) const
 {
 	GL::Shader::setUniform(mShader, "shapeId", shape.id);
 	GL::Shader::setUniform(mShader, "priority", shape.priority);
@@ -177,46 +175,8 @@ void Renderer::setClearColor(const glm::vec3& color)
 	mClearColor = glm::vec4(color, 1.0f);
 }
 
-void Renderer::createSquare(const glm::vec2& position, const glm::vec2& size, unsigned int priority,
-							int borderRadius, Background::BackgroundData background)
-{
-	const unsigned int indices [] = {
-		0, 1, 2, 0, 2, 3
-	};
 
-	const float vertices [] = {
-		0.0f, 0.0f,
-		size.x, 0.0f,
-		size.x, size.y,
-		0.0f, size.y,
-	};
-
-	Shape result = {
-		.indices = 6,
-		.id = mNextId++,
-		.priority = -1.0f + ((float)priority * 2.0f / (float)mMaxPriority), // clamp to the range [-1, 1]
-		.size = size,
-		.borderRadius = borderRadius,
-		.modelMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(position, 0.0f)),
-	};
-
-	result.vao = GL::Factory::createVAO();
-	result.vbo = GL::Factory::reserveBuffer(GL_ARRAY_BUFFER,
-											sizeof(vertices) + background->size() * sizeof(glm::vec4),
-											GL_STATIC_DRAW);
-	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
-	glBufferSubData(GL_ARRAY_BUFFER, sizeof(vertices), background->size() * sizeof(glm::vec4),
-					glm::value_ptr((*background)[0]));
-
-	result.ebo = GL::Factory::createBuffer(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices),
-											&indices, GL_STATIC_DRAW);
-
-	GL::Factory::configureVAO(result.vao, {2, 4}, 4);
-
-	mShapes.push_back(result);
-}
-
-unsigned int Renderer::getShapeId(const glm::ivec2& position)
+unsigned int Renderer::getShapeId(const glm::ivec2& position) const
 {
 	if(mIsAntiAliasingSupported)
 		return getShapeIdMSAA(position);
@@ -224,7 +184,7 @@ unsigned int Renderer::getShapeId(const glm::ivec2& position)
 	return getShapeIdDefault(position);
 }
 
-unsigned int Renderer::getShapeIdDefault(const glm::ivec2& position)
+unsigned int Renderer::getShapeIdDefault(const glm::ivec2& position) const
 {
 	unsigned int result = 0;
 
@@ -237,12 +197,7 @@ unsigned int Renderer::getShapeIdDefault(const glm::ivec2& position)
 	return result;
 }
 
-unsigned int Renderer::getShapeIdMSAA(const glm::ivec2& position)
+unsigned int Renderer::getShapeIdMSAA(const glm::ivec2& position) const
 {
 	return 0;
-}
-
-void Renderer::setMaxPriority(unsigned int level)
-{
-	mMaxPriority = level;
 }

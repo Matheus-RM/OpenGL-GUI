@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Renderer.hpp"
+#include "Interface.hpp"
 #include "Window.hpp"
 #include "Input.hpp"
 #include "Time/Timer.hpp"
@@ -26,5 +26,5 @@ class App
 		Window mWindow;
 		Input mInput;
 		Timer mTimer;
-		Renderer mRenderer;
+		Interface mInterface;
 };

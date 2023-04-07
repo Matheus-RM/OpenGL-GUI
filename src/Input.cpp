@@ -1,5 +1,4 @@
 #include "Input.hpp"
-#include "SDL2/SDL_events.h"
 
 Input::Input()
 {
